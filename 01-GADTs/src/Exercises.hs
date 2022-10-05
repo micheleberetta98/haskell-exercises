@@ -223,16 +223,22 @@ exampleHList = HCons "Tom" (HCons 25 (HCons True HNil))
 -- need to pattern-match on HNil, and therefore the return type shouldn't be
 -- wrapped in a 'Maybe'!
 
+hHead :: HList (h, t) -> h
+hHead (HCons x _) = x
+
 -- | b. Currently, the tuples are nested. Can you pattern-match on something of
 -- type @HList (Int, String, Bool, ())@? Which constructor would work?
 
 patternMatchMe :: HList (Int, String, Bool, ()) -> Int
-patternMatchMe = undefined
+patternMatchMe = error "Can't pattern match on this"
 
 -- | c. Can you write a function that appends one 'HList' to the end of
 -- another? What problems do you run into?
 
-
+-- Can't do this
+-- hAppend :: HList (a, b) -> HList (c, d) -> HList (a, (b, (c, d)))
+-- hAppend HNil ys         = ys
+-- hAppend (HCons x xs) ys = HCons x (hAppend xs ys)
 
 
 
