@@ -19,7 +19,7 @@ data List a = Nil | Cons a (List a)
 -}
 
 instance Show a => Show (List a) where
-  show  Nil             = "[]"
+  show Nil              = "[]"
   show (Cons head tail) = show head ++ " : " ++ show tail
 
 {-
@@ -91,7 +91,7 @@ data ShowList where
 -}
 
 instance Show ShowList where
-  show  ShowNil             = "[]"
+  show ShowNil              = "[]"
   show (ShowCons head tail) = show head ++ " : " ++ show tail
 
 {-

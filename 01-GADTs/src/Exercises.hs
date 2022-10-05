@@ -8,34 +8,46 @@ module Exercises where
 {- ONE -}
 
 -- | Let's introduce a new class, 'Countable', and some instances to match.
-class Countable a where count :: a -> Int
-instance Countable Int  where count   = id
-instance Countable [a]  where count   = length
-instance Countable Bool where count x = if x then 1 else 0
+class Countable a where
+  count :: a -> Int
+
+instance Countable Int where
+  count = id
+
+instance Countable [a] where
+  count = length
+instance Countable Bool where
+  count x = if x then 1 else 0
 
 -- | a. Build a GADT, 'CountableList', that can hold a list of 'Countable'
 -- things.
 
 data CountableList where
-  -- ...
+  CountNil  :: CountableList
+  CountCons :: Countable a => a -> CountableList -> CountableList
 
 
 -- | b. Write a function that takes the sum of all members of a 'CountableList'
 -- once they have been 'count'ed.
 
 countList :: CountableList -> Int
-countList = error "Implement me!"
+countList CountNil         = 0
+countList (CountCons x xs) = count x + countList xs
 
 
 -- | c. Write a function that removes all elements whose count is 0.
 
 dropZero :: CountableList -> CountableList
-dropZero = error "Implement me!"
+dropZero CountNil         = CountNil
+dropZero (CountCons x xs)
+  | count x == 0          = dropZero xs
+  | otherwise             = x `CountCons` dropZero xs
 
 
 -- | d. Can we write a function that removes all the things in the list of type
 -- 'Int'? If not, why not?
 
+-- Can't write, we don't know the type of the elements
 filterInts :: CountableList -> CountableList
 filterInts = error "Contemplate me!"
 
