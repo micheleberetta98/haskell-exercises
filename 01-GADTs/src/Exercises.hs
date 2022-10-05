@@ -60,27 +60,37 @@ filterInts = error "Contemplate me!"
 -- | a. Write a list that can take /any/ type, without any constraints.
 
 data AnyList where
-  -- ...
+  AnyNil  :: AnyList
+  AnyCons :: a -> AnyList -> AnyList
 
 -- | b. How many of the following functions can we implement for an 'AnyList'?
 
 reverseAnyList :: AnyList -> AnyList
-reverseAnyList = undefined
+reverseAnyList AnyNil         = AnyNil
+reverseAnyList (AnyCons x xs) = reverseAnyList xs `anyConcat` AnyCons x AnyNil
+  where
+    anyConcat AnyNil ys         = ys
+    anyConcat (AnyCons x xs) ys = AnyCons x (anyConcat xs ys)
 
 filterAnyList :: (a -> Bool) -> AnyList -> AnyList
-filterAnyList = undefined
+filterAnyList = error "Can't implement"
 
 lengthAnyList :: AnyList -> Int
-lengthAnyList = undefined
+lengthAnyList AnyNil         = 0
+lengthAnyList (AnyCons _ xs) = 1 + lengthAnyList xs
 
 foldAnyList :: Monoid m => AnyList -> m
-foldAnyList = undefined
+foldAnyList = error "Can't implement"
 
 isEmptyAnyList :: AnyList -> Bool
-isEmptyAnyList = undefined
+isEmptyAnyList AnyNil = True
+isEmptyAnyList _      = False
+
+-- Can't show the elements, but can show the structure
 
 instance Show AnyList where
-  show = error "What about me?"
+  show AnyNil         = "[]"
+  show (AnyCons _ xs) = "_ : " ++ show xs
 
 
 
