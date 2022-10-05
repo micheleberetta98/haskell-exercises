@@ -117,13 +117,21 @@ transformable2 = TransformWith (uncurry (++)) ("Hello,", " world!")
 -- | a. Which type variable is existential inside 'TransformableTo'? What is
 -- the only thing we can do to it?
 
+-- input, the only thing we can do is transforming it to output
+
 -- | b. Could we write an 'Eq' instance for 'TransformableTo'? What would we be
 -- able to check?
+
+-- We can check if the result is the same (provided Eq output)
+
+instance Eq output => Eq (TransformableTo output) where
+  TransformWith f x == TransformWith g y = f x == g y
 
 -- | c. Could we write a 'Functor' instance for 'TransformableTo'? If so, write
 -- it. If not, why not?
 
-
+instance Functor TransformableTo where
+  fmap f (TransformWith g x) = TransformWith (f . g) x
 
 
 
