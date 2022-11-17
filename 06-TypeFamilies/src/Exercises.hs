@@ -224,6 +224,14 @@ instance (Every Eq xs, Every Ord xs) => Ord (HList xs) where
 -- | a. Write a type family to calculate all natural numbers up to a given
 -- input natural.
 
+type family UpTo (x :: Nat) :: [Nat] where
+  UpTo 'Z     = '[ 'Z ]
+  UpTo ('S n) = UpTo n +++ '[ 'S n ]
+
+type family (x :: [Nat]) +++ (y :: [Nat]) :: [Nat] where
+  '[] +++ ys       = ys
+  (x ': xs) +++ ys = x ': (xs +++ ys)
+
 -- | b. Write a type-level prime number sieve.
 
 -- | c. Why is this such hard work?
