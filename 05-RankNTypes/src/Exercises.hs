@@ -255,3 +255,7 @@ data Vector (n :: Nat) (a :: Type) where
 -- | It would be nice to have a 'filter' function for vectors, but there's a
 -- problem: we don't know at compile time what the new length of our vector
 -- will be... but has that ever stopped us? Make it so!
+
+filterV :: (a -> Bool) -> Vector n a -> (forall m. Vector m a -> r) -> r
+filterV _ VNil f         = f VNil
+filterV p (VCons x xs) f = filterV p xs (if p x then f . VCons x else f)
