@@ -1,10 +1,11 @@
-{-# LANGUAGE DataKinds      #-}
-{-# LANGUAGE GADTs          #-}
-{-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GADTs             #-}
+{-# LANGUAGE KindSignatures    #-}
 module Exercises where
 
-import Data.Kind (Type)
-import Data.Function ((&))
+import           Data.Function ((&))
+import           Data.Kind     (Type)
 
 
 
@@ -21,11 +22,25 @@ data IntegerMonoid = Sum | Product
 -- | a. Write a newtype around 'Integer' that lets us choose which instance we
 -- want.
 
+newtype IntegerWith (m :: IntegerMonoid) = IntegerWith Integer
+
 -- | b. Write the two monoid instances for 'Integer'.
+
+instance Semigroup (IntegerWith 'Sum) where
+  IntegerWith x <> IntegerWith y = IntegerWith (x + y)
+
+instance Monoid (IntegerWith 'Sum) where
+  mempty = IntegerWith 0
+
+instance Semigroup (IntegerWith 'Product) where
+  IntegerWith x <> IntegerWith y = IntegerWith (x * y)
+
+instance Monoid (IntegerWith 'Product) where
+  mempty = IntegerWith 1
 
 -- | c. Why do we need @FlexibleInstances@ to do this?
 
-
+-- Because in @IntegerWith@ does not have a type variable applied
 
 
 
