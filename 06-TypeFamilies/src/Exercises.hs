@@ -139,9 +139,25 @@ type family Insert' (c :: Ordering) (x :: Nat) (node :: Tree) :: Tree where
 
 -- | Write a type family to /delete/ a promoted 'Nat' from a promoted 'Tree'.
 
+type family Delete (x :: Nat) (t :: Tree) :: Tree where
+  Delete _ 'Empty        = 'Empty
+  Delete x ('Node l n r) = Delete' (Compare x n) x ('Node l n r)
 
+type family Delete' (o :: Ordering) (x :: Nat) (t :: Tree) :: Tree where
+  Delete' 'LT x ('Node l n r)      = 'Node (Delete x l) n r
+  Delete' 'GT x ('Node l n r)      = 'Node l n (Delete x r)
+  Delete' 'EQ _ ('Node 'Empty _ r) = r
+  Delete' 'EQ _ ('Node l _ r)      = Repair (Biggest l) r
 
+type family Repair (parts :: (Nat, Tree)) (t :: Tree) :: Tree where
+  Repair '(n, l) r = 'Node l n r
 
+type family Biggest (t :: Tree) :: (Nat, Tree) where
+  Biggest ('Node l n 'Empty) = '(n, l)
+  Biggest ('Node l n r)      = Biggest' l n (Biggest r)
+
+type family Biggest' (l :: Tree) (n :: Nat) (r' :: (Nat, Tree)) :: (Nat, Tree) where
+  Biggest' l n '(x, r) = '(x, 'Node l n r)
 
 {- SEVEN -}
 
