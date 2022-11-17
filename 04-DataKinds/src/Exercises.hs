@@ -40,7 +40,7 @@ instance Monoid (IntegerWith 'Product) where
 
 -- | c. Why do we need @FlexibleInstances@ to do this?
 
--- Because in @IntegerWith@ does not have a type variable applied
+-- Because in @IntegerWith@ does not have a type variable as argument
 
 
 
@@ -72,14 +72,23 @@ data Void -- No constructors!
 data Nat = Z | S Nat
 
 data StringAndIntList (stringCount :: Nat) where
-  -- ...
+  SINil   :: StringAndIntList 'Z
+  StrCons :: String -> StringAndIntList n -> StringAndIntList ('S n)
+  IntCons :: Int -> StringAndIntList n -> StringAndIntList n
 
 -- | b. Update it to keep track of the count of strings /and/ integers.
 
+data StringAndIntList' (strings :: Nat) (ints :: Nat) where
+  SINil'   :: StringAndIntList' 'Z 'Z
+  StrCons' :: String -> StringAndIntList' m n -> StringAndIntList' ('S m) n
+  IntCons' :: Int -> StringAndIntList' m n -> StringAndIntList' m ('S n)
+
 -- | c. What would be the type of the 'head' function?
 
-
-
+head' :: StringAndIntList' m n -> Maybe (Either Int String)
+head' SINil'         = Nothing
+head' (StrCons' s _) = Just (Right s)
+head' (IntCons' n _) = Just (Left n)
 
 
 {- FOUR -}
