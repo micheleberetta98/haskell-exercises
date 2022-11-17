@@ -1,10 +1,10 @@
 {-# LANGUAGE DataKinds      #-}
-{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE GADTs          #-}
+{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE RankNTypes     #-}
 module Exercises where
 
-import Data.Kind (Type)
+import           Data.Kind (Type)
 
 
 
@@ -20,15 +20,18 @@ data Exlistential where
 
 -- | a. Write a function to "unpack" this exlistential into a list.
 
--- unpackExlistential :: Exlistential -> (forall a. a -> r) -> [r]
--- unpackExlistential = error "Implement me!"
+unpackExlistential :: Exlistential -> (forall a. a -> r) -> [r]
+unpackExlistential Nil _         = []
+unpackExlistential (Cons x xs) f = f x : unpackExlistential xs f
 
 -- | b. Regardless of which type @r@ actually is, what can we say about the
 -- values in the resulting list?
 
+-- Nothing
+
 -- | c. How do we "get back" knowledge about what's in the list? Can we?
 
-
+-- Nope
 
 
 
