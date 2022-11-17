@@ -71,14 +71,21 @@ data EqPair where
 -- | a. Write a function that "unpacks" an 'EqPair' by applying a user-supplied
 -- function to its pair of values in the existential type.
 
+unpackEqPair :: (forall a. Eq a => a -> a -> r) -> EqPair -> r
+unpackEqPair f (EqPair x y) = f x y
+
 -- | b. Write a function that takes a list of 'EqPair's and filters it
 -- according to some predicate on the unpacked values.
+
+filterEqPair :: (forall a. Eq a => a -> a -> Bool) -> [EqPair] -> [EqPair]
+filterEqPair f = filter (unpackEqPair f)
 
 -- | c. Write a function that unpacks /two/ 'EqPair's. Now that both our
 -- variables are in rank-2 position, can we compare values from different
 -- pairs?
 
-
+unpackTwoEqPair :: (forall a. Eq a => a -> a -> r) -> EqPair -> EqPair -> (r, r)
+unpackTwoEqPair f p1 p2 = (unpackEqPair f p1, unpackEqPair f p2)
 
 
 
