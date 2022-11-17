@@ -1,10 +1,12 @@
 {-# LANGUAGE DataKinds      #-}
 {-# LANGUAGE GADTs          #-}
 {-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE LambdaCase     #-}
 {-# LANGUAGE RankNTypes     #-}
 module Exercises where
 
-import           Data.Kind (Type)
+import           Data.Kind  (Type)
+import           Data.Maybe (fromMaybe)
 
 
 
@@ -187,13 +189,24 @@ data MysteryBox a where
 -- | a. Knowing what we now know about RankNTypes, we can write an 'unwrap'
 -- function! Write the function, and don't be too upset if we need a 'Maybe'.
 
+unwrap :: MysteryBox a -> (forall a. MysteryBox a -> r) -> Maybe r
+unwrap EmptyBox f          = Nothing
+unwrap (IntBox    _ box) f = Just (f box)
+unwrap (StringBox _ box) f = Just (f box)
+unwrap (BoolBox   _ box) f = Just (f box)
+
 -- | b. Why do we need a 'Maybe'? What can we still not know?
+
+-- Can't unwrap an empty box
 
 -- | c. Write a function that uses 'unwrap' to print the name of the next
 -- layer's constructor.
 
-
-
+printInner :: MysteryBox a -> String
+printInner box = fromMaybe "Empty inner layer" $ unwrap box $ \case
+  IntBox _ _    -> "IntBox"
+  StringBox _ _ -> "StringBox"
+  BoolBox _ _   -> "BoolBox"
 
 
 {- SEVEN -}
