@@ -1,4 +1,6 @@
-{-# LANGUAGE GADTs #-}
+{-# LANGUAGE FlexibleContexts  #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GADTs             #-}
 module Exercises where
 
 
@@ -253,11 +255,15 @@ data Branch left centre right
 -- /tree/. None of the variables should be existential.
 
 data HTree a where
-  -- ...
+  HEmpty :: HTree Empty
+  HBranch :: HTree l -> centre -> HTree r -> HTree (Branch l centre r)
 
 -- | b. Implement a function that deletes the left subtree. The type should be
 -- strong enough that GHC will do most of the work for you. Once you have it,
 -- try breaking the implementation - does it type-check? If not, why not?
+
+deleteLeft :: HTree (Branch l c r) -> HTree (Branch Empty c r)
+deleteLeft (HBranch _ centre right) = HBranch HEmpty centre right
 
 -- | c. Implement 'Eq' for 'HTree's. Note that you might have to write more
 -- than one to cover all possible HTrees. You might also need an extension or
@@ -265,8 +271,11 @@ data HTree a where
 -- Recursion is your friend here - you shouldn't need to add a constraint to
 -- the GADT!
 
+instance Eq (HTree Empty) where
+  _ == _ = True
 
-
+instance (Eq (HTree l), Eq c, Eq (HTree r)) => Eq (HTree (Branch l c r)) where
+  HBranch l1 c1 r1 == HBranch l2 c2 r2 = l1 == l2 && c1 == c2 && r1 == r2
 
 
 {- EIGHT -}
