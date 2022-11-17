@@ -1,3 +1,4 @@
+{-# LANGUAGE ConstraintKinds   #-}
 {-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs             #-}
@@ -5,7 +6,7 @@
 module Exercises where
 
 import           Data.Function ((&))
-import           Data.Kind     (Type)
+import           Data.Kind     (Constraint, Type)
 
 
 
@@ -103,17 +104,22 @@ data Showable where
 -- stores this fact in the type-level.
 
 data MaybeShowable (isShowable :: Bool) where
-  -- ...
+  IsShowable :: Show a => a -> MaybeShowable 'True
+  NotShowable :: a -> MaybeShowable 'False
 
 -- | b. Write a 'Show' instance for 'MaybeShowable'. Your instance should not
 -- work unless the type is actually 'show'able.
+
+instance Show (MaybeShowable 'True) where
+  show (IsShowable x) = show x
 
 -- | c. What if we wanted to generalise this to @Constrainable@, such that it
 -- would work for any user-supplied constraint of kind 'Constraint'? How would
 -- the type change? What would the constructor look like? Try to build this
 -- type - GHC should tell you exactly which extension you're missing.
 
-
+data MaybeConstrainable (c :: Type -> Constraint) where
+  Constrainted :: (c a) => a -> MaybeConstrainable c
 
 
 
