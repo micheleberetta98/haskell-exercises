@@ -329,7 +329,11 @@ data Expr a where
 -- | a. Implement the following function and marvel at the typechecker:
 
 eval :: Expr a -> a
-eval = error "Implement me"
+eval (Equals x y)             = eval x == eval y
+eval (Add x y)                = eval x + eval y
+eval (If cond ifTrue ifFalse) = if eval cond then eval ifTrue else eval ifFalse
+eval (IntValue x)             = x
+eval (BoolValue x)            = x
 
 -- | b. Here's an "untyped" expression language. Implement a parser from this
 -- into our well-typed language. Note that (until we cover higher-rank
@@ -342,8 +346,36 @@ data DirtyExpr
   | DirtyIntValue  Int
   | DirtyBoolValue Bool
 
+data Typed = IntType (Expr Int) | BoolType (Expr Bool)
+
+tidy :: DirtyExpr -> Maybe Typed
+tidy (DirtyEquals a b) = do
+  x <- tidy a
+  y <- tidy b
+  case (x, y) of
+    (IntType x', IntType y') -> Just (BoolType (Equals x' y'))
+    _                        -> Nothing
+tidy (DirtyAdd a b) = do
+  x <- tidy a
+  y <- tidy b
+  case (x, y) of
+    (IntType x', IntType y') -> Just (IntType (Add x' y'))
+    _                        -> Nothing
+tidy (DirtyIf a b c) = do
+  x <- tidy a
+  y <- tidy b
+  z <- tidy c
+  case (x, y, z) of
+    (BoolType x', IntType y', IntType z')   -> Just (IntType (If x' y' z'))
+    (BoolType x', BoolType y', BoolType z') -> Just (BoolType (If x' y' z'))
+    _                                       -> Nothing
+tidy (DirtyIntValue x) = Just (IntType (IntValue x))
+tidy (DirtyBoolValue x) = Just (BoolType (BoolValue x))
+
 parse :: DirtyExpr -> Maybe (Expr Int)
-parse = error "Implement me"
+parse expr = case tidy expr of
+  Just (IntType expr') -> Just expr'
+  _                    -> Nothing
 
 -- | c. Can we add functions to our 'Expr' language? If not, why not? What
 -- other constructs would we need to add? Could we still avoid 'Maybe' in the
