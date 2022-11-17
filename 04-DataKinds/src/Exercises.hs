@@ -232,21 +232,21 @@ data Proxy a = Proxy
 -- and write to a file. To do this, we might write a data type to express our
 -- intentions:
 
-data Program                     result
-  = OpenFile            (Program result)
-  | WriteFile  String   (Program result)
-  | ReadFile  (String -> Program result)
-  | CloseFile (          Program result)
-  | Exit                         result
+data Program r
+  = OpenFile            (Program r)
+  | WriteFile  String   (Program r)
+  | ReadFile  (String -> Program r)
+  | CloseFile           (Program r)
+  | Exit                         r
 
 -- | We could then write a program like this to use our language:
 
 myApp :: Program Bool
 myApp
-  = OpenFile $ WriteFile "HEY" $ (ReadFile $ \contents ->
+  = OpenFile $ WriteFile "HEY" $ ReadFile $ \contents ->
       if contents == "WHAT"
         then WriteFile "... bug?" $ Exit False
-        else CloseFile            $ Exit True)
+        else CloseFile            $ Exit True
 
 -- | ... but wait, there's a bug! If the contents of the file equal "WHAT", we
 -- forget to close the file! Ideally, we would like the compiler to help us: we
@@ -268,15 +268,29 @@ myApp
 -- write to the file unless it's open. This exercise is a bit brain-bending;
 -- why? How could we make it more intuitive to write?
 
+data Program' (fileOpen :: Bool) r where
+  OpenFile'  :: Program' 'True r -> Program' 'False r
+  WriteFile' :: String -> Program' 'True r -> Program' 'True r
+  ReadFile'  :: (String -> Program' 'True r) -> Program' 'True r
+  CloseFile' :: Program' 'False r -> Program' 'True r
+  Exit'      :: r -> Program' 'False r
+
+myApp' :: Program' 'False Bool
+myApp'
+  = OpenFile' $ WriteFile' "HEY" $ ReadFile' $ \contents ->
+      if contents == "WHAT"
+        then WriteFile' "... bug?" $ CloseFile' $ Exit' False
+        else CloseFile'            $ Exit' True
+
 -- | EXTRA: write an interpreter for this program. Nothing to do with data
 -- kinds, but a nice little problem.
 
-interpret :: Program {- ??? -} a -> IO a
-interpret = error "Implement me?"
-
-
-
-
+interpret :: Program' any a -> IO a
+interpret (OpenFile' next)       = putStrLn "Opening file..." >> interpret next
+interpret (WriteFile' what next) = putStrLn ("Writing " ++ what) >> interpret next
+interpret (ReadFile' f)          = interpret (f "<file contents>")
+interpret (CloseFile' next)      = putStrLn "Closing file..." >> interpret next
+interpret (Exit' x)              = putStrLn "Exit" >> pure x
 
 {- NINE -}
 
