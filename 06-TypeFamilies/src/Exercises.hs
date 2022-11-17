@@ -1,10 +1,11 @@
-{-# LANGUAGE DataKinds     #-}
-{-# LANGUAGE GADTs         #-}
-{-# LANGUAGE TypeFamilies  #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE DataKinds            #-}
+{-# LANGUAGE GADTs                #-}
+{-# LANGUAGE TypeFamilies         #-}
+{-# LANGUAGE TypeOperators        #-}
+{-# LANGUAGE UndecidableInstances #-}
 module Exercises where
 
-import Data.Kind (Constraint, Type)
+import           Data.Kind (Constraint, Type)
 
 -- | Before we get started, let's talk about the @TypeOperators@ extension. All
 -- this does is allow us to write types whose names are operators, and write
@@ -22,8 +23,16 @@ data Nat = Z | S Nat
 -- | a. Use the @TypeOperators@ extension to rewrite the 'Add' family with the
 -- name '+':
 
+type family (x :: Nat) + (y :: Nat) :: Nat where
+  'Z + y   = y
+  'S x + y = 'S (x + y)
+
 -- | b. Write a type family '**' that multiplies two naturals using '(+)'. Which
 -- extension are you being told to enable? Why?
+
+type family (x :: Nat) ** (y :: Nat) :: Nat where
+  'Z ** _   = 'Z
+  'S x ** y = y + (x ** y)
 
 data SNat (value :: Nat) where
   SZ :: SNat 'Z
@@ -31,7 +40,9 @@ data SNat (value :: Nat) where
 
 -- | c. Write a function to add two 'SNat' values.
 
-
+add :: SNat x -> SNat y -> SNat (x + y)
+add SZ y     = y
+add (SS x) y = SS (add x y)
 
 
 
