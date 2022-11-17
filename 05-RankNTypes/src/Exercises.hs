@@ -45,16 +45,20 @@ data CanFold a where
 
 -- | a. The following function unpacks a 'CanFold'. What is its type?
 
--- unpackCanFold :: ???
--- unpackCanFold f (CanFold x) = f x
+unpackCanFold :: (forall f. Foldable f => f a -> r) -> CanFold a -> r
+unpackCanFold f (CanFold x) = f x
 
 -- | b. Can we use 'unpackCanFold' to figure out if a 'CanFold' is "empty"?
 -- Could we write @length :: CanFold a -> Int@? If so, write it!
 
+length' :: CanFold a -> Int
+length' = unpackCanFold (foldr (\_ k -> k + 1) 0)
+
 -- | c. Write a 'Foldable' instance for 'CanFold'. Don't overthink it.
 
-
-
+instance Foldable CanFold where
+  -- foldr f z = unpackCanFold (foldr f z)
+  foldMap f (CanFold xs) = foldMap f xs
 
 
 {- THREE -}
