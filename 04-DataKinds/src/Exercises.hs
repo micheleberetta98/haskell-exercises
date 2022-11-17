@@ -308,11 +308,17 @@ data Vector (n :: Nat) (a :: Type) where
 -- into Z and S cases. That's all the hint you need :)
 
 data SmallerThan (limit :: Nat) where
-  -- ...
+  STZero :: SmallerThan ('S any)
+  STSucc :: SmallerThan n -> SmallerThan ('S n)
 
 -- | b. Write the '(!!)' function:
 
-(!!) :: Vector n a -> SmallerThan n -> a
-(!!) = error "Implement me!"
+(!) :: Vector n a -> SmallerThan n -> a
+(VCons x _) ! STZero      = x
+(VCons _ xs) ! (STSucc n) = xs ! n
 
 -- | c. Write a function that converts a @SmallerThan n@ into a 'Nat'.
+
+toNat :: SmallerThan limit -> Nat
+toNat STZero     = Z
+toNat (STSucc n) = S (toNat n)
