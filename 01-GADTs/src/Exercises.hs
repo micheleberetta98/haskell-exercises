@@ -289,24 +289,28 @@ instance (Eq (HTree l), Eq c, Eq (HTree r)) => Eq (HTree (Branch l c r)) where
 -- @
 
 data AlternatingList a b where
-  -- ...
+  ANil :: AlternatingList a b
+  ACons :: a -> AlternatingList b a -> AlternatingList a b
 
 -- | b. Implement the following functions.
 
 getFirsts :: AlternatingList a b -> [a]
-getFirsts = error "Implement me!"
+getFirsts ANil         = []
+getFirsts (ACons x xs) = x : getSeconds xs
 
 getSeconds :: AlternatingList a b -> [b]
-getSeconds = error "Implement me, too!"
+getSeconds ANil         = []
+getSeconds (ACons _ xs) = getFirsts xs
 
 -- | c. One more for luck: write this one using the above two functions, and
 -- then write it such that it only does a single pass over the list.
 
 foldValues :: (Monoid a, Monoid b) => AlternatingList a b -> (a, b)
-foldValues = error "Implement me, three!"
+foldValues xs = (mconcat (getFirsts xs), mconcat (getSeconds xs))
 
-
-
+foldValues' :: (Monoid a, Monoid b) => AlternatingList a b -> (a, b)
+foldValues' ANil         = (mempty, mempty)
+foldValues' (ACons x xs) = let (b, a) = foldValues' xs in (x <> a, b)
 
 
 {- NINE -}
