@@ -209,18 +209,20 @@ data SBool (value :: Bool) where
 -- | a. Write a singleton type for natural numbers:
 
 data SNat (value :: Nat) where
-  -- ...
+  SZ :: SNat 'Z
+  SS :: SNat n -> SNat ('S n)
 
 -- | b. Write a function that extracts a vector's length at the type level:
 
-length :: Vector n a -> SNat n
-length = error "Implement me!"
+length' :: Vector n a -> SNat n
+length' VNil         = SZ
+length' (VCons _ xs) = SS (length' xs)
 
 -- | c. Is 'Proxy' a singleton type?
 
 data Proxy a = Proxy
 
-
+-- No, we can have @Proxy :: Proxy Int@, or @Proxy :: Proxy Double@ and so on
 
 
 
